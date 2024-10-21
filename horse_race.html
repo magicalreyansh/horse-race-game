@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Horse Race Challenge</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            background-color: #f0f8ff;
+        }
+        .track {
+            width: 100%;
+            height: 200px;
+            border: 2px solid #8b4513;
+            position: relative;
+            overflow: hidden;
+            margin: 20px 0;
+            background: url('track.png') repeat-x; /* Add a track image */
+        }
+        .horse {
+            width: 50px;
+            height: 50px;
+            position: absolute;
+            bottom: 0;
+            background-color: #ff4500;
+            border-radius: 50%;
+        }
+        button {
+            padding: 10px 20px;
+            font-size: 16px;
+        }
+        #leaderboard {
+            display: none;
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+
+<h1>Horse Race Challenge!</h1>
+<div class="track" id="track">
+    <div class="horse" id="player1"></div>
+    <div class="horse npc" id="npc1"></div>
+    <div class="horse npc" id="npc2"></div>
+    <div class="horse npc" id="npc3"></div>
+</div>
+<button id="startRace">Start Race!</button>
+<div id="leaderboard">
+    <h2>Leaderboard</h2>
+    <ul id="results"></ul>
+</div>
+
+<script>
+    let playerPosition = 0;
+    let npcPositions = [0, 0, 0];
+    const trackLength = 1000; // track length in pixels
+    const finishLine = trackLength - 50; // position of the finish line
+    let isRacing = false;
+
+    document.getElementById("startRace").addEventListener("click", function() {
+        playerPosition = 0;
+        npcPositions = [0, 0, 0];
+        document.getElementById("player1").style.left = playerPosition + 'px';
+        document.getElementById("npc1").style.left = npcPositions[0] + 'px';
+        document.getElementById("npc2").style.left = npcPositions[1] + 'px';
+        document.getElementById("npc3").style.left = npcPositions[2] + 'px';
+        document.getElementById("results").innerHTML = '';
+        document.getElementById("leaderboard").style.display = 'none';
+        isRacing = true;
+
+        const raceInterval = setInterval(() => {
+            if (!isRacing) return;
+
+            // NPC movement
+            npcPositions = npcPositions.map(pos => pos + Math.random() * 10);
+            document.getElementById("npc1").style.left = npcPositions[0] + 'px';
+            document.getElementById("npc2").style.left = npcPositions[1] + 'px';
+            document.getElementById("npc3").style.left = npcPositions[2] + 'px';
+        }, 200);
+    });
+
+    document.addEventListener("touchstart", function(event) {
+        if (isRacing) {
+            playerPosition += 10; // Move player forward
+            document.getElementById("player1").style.left = playerPosition + 'px';
+
+            if (playerPosition >= finishLine) {
+                isRacing = false;
+                showLeaderboard();
+            }
+        }
+    });
+
+    function showLeaderboard() {
+        const positions = [playerPosition, ...npcPositions];
+        const results = positions.map((pos, index) => `Player ${index + 1}: ${pos}px`).sort((a, b) => {
+            return parseInt(b.split(': ')[1]) - parseInt(a.split(': ')[1]);
+        });
+        results.forEach(result => {
+            const li = document.createElement("li");
+            li.textContent = result;
+            document.getElementById("results").appendChild(li);
+        });
+        document.getElementById("leaderboard").style.display = 'block';
+    }
+</script>
+
+</body>
+</html>
